@@ -1,0 +1,37 @@
+[project]
+name = "rag-service"
+version = "0.1.0"
+description = "Hybrid retrieval API: multi-query fusion + rerank over LlamaCloud indexes."
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    # Web framework + servers
+    "fastapi>=0.133.0",
+    "starlette>=1.0.1",
+    "uvicorn>=0.38.0",
+    "gunicorn>=23.0.0",
+    # Config / validation
+    "pydantic>=2.11.0",
+    "python-dotenv>=1.1.0",
+    # LlamaIndex / LlamaCloud RAG stack
+    "llama-cloud-services>=0.6.54",
+    "llama-index-core>=0.14.10",
+    "llama-index-llms-openai>=0.6.10",
+    "llama-index-embeddings-openai>=0.5.1",
+    "llama-index-postprocessor-cohere-rerank>=0.5.1",
+    "llama-index-indices-managed-llama-cloud>=0.9.4",
+]
+
+[tool.uv]
+# Force CVE-patched floors onto transitive packages without listing them as direct deps.
+constraint-dependencies = [
+    "aiohttp>=3.13.4",   # multiple DoS / request-smuggling CVEs fixed in 3.13.4
+    "pypdf>=6.12.0",     # only enforced if pulled transitively
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

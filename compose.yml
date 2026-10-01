@@ -1,0 +1,31 @@
+services:
+  rag-service:
+    image: ${IMAGE_NAME}
+    container_name: ${PROJ_NAME}
+    ports:
+      - "${PORT_NUM}:8000"
+    restart: always
+    env_file:
+      - .env
+    security_opt:
+      - "no-new-privileges:true"
+    cap_drop:
+      - "ALL"
+    # Resource limits (Compose v2 standalone honours mem_limit/cpus directly).
+    mem_limit: 6g
+    cpus: 4
+    healthcheck:
+      # Probes the API health endpoint. API_PREFIX comes from .env (default /rag).
+      # Uses python urllib so it works even if curl is absent from the image.
+      test:
+        - "CMD-SHELL"
+        - "python -c \"import os,urllib.request,sys; p=os.getenv('API_PREFIX','/rag'); urllib.request.urlopen('http://localhost:8000'+p+'/health', timeout=5)\" || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "${LOG_ADDRESS}"
+        tag: "${LOG_TAG}"
